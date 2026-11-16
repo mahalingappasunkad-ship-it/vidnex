@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#071b36">
+<title>VIDNEX — Watch • Create • Connect</title>
+<style>
+:root{--navy:#071b36;--blue:#1268c9;--sky:#38a9f5;--ink:#102b4c;--muted:#6b829e;--line:#d9e7f6;--shadow:0 14px 38px rgba(18,69,125,.11)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f2f7fd;color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;min-height:100vh}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+#ambient{position:fixed;inset:0;z-index:-2;overflow:hidden;background:radial-gradient(circle at 12% 15%,#d8ecff 0,transparent 32%),radial-gradient(circle at 88% 72%,#dce8ff 0,transparent 35%),linear-gradient(135deg,#f7fbff,#eaf3ff)}
+#ambient:before,#ambient:after{content:"";position:absolute;border:1px solid #8fc5f44a;border-radius:50%;width:440px;height:440px;right:-170px;top:90px;box-shadow:0 0 0 35px #8fc5f415,0 0 0 75px #8fc5f40c;animation:drift 18s linear infinite}
+#ambient:after{width:300px;height:300px;right:auto;left:-160px;top:auto;bottom:70px;animation-direction:reverse}
+@keyframes drift{to{transform:rotate(360deg)}}
+.screen{display:none;min-height:100vh}.screen.active{display:block}
+.center-screen{display:none;min-height:100vh;padding:28px 16px;align-items:center;justify-content:center}.center-screen.active{display:flex}
+.brand{font-size:39px;font-weight:950;letter-spacing:5px;text-align:center;color:#10417b;background:linear-gradient(100deg,#0b3470,#1685ee,#75caff,#17458a);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand small{display:block;font-size:10px;letter-spacing:3px;margin-top:5px;color:#5a83b1;-webkit-text-fill-color:#5a83b1}
+.card{width:min(100%,430px);padding:26px;border:1px solid #d8e7f7;border-radius:25px;background:#ffffffed;box-shadow:var(--shadow);backdrop-filter:blur(18px)}
+.card h1{font-size:25px;margin:0 0 9px}.muted{color:var(--muted);font-size:14px;line-height:1.6}
+.lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0}
+.lang{padding:13px 8px;border:1px solid var(--line);border-radius:13px;background:#f7fbff;color:#24496f;font-weight:700}
+.lang.selected{background:linear-gradient(110deg,var(--blue),var(--sky));color:#fff;border-color:transparent}
+.primary{border:0;border-radius:13px;padding:14px 18px;background:linear-gradient(110deg,#1264c2,#269cf0 60%,#64c8ff);color:#fff;font-weight:800;box-shadow:0 8px 22px #197bd033}
+.full{width:100%}.secondary{border:1px solid #cbdff4;background:#f6faff;color:#245b95;border-radius:12px;padding:11px 15px;font-weight:700}
+.option{display:flex;align-items:center;gap:13px;width:100%;padding:13px;margin-top:10px;border:1px solid var(--line);border-radius:13px;background:#f8fbff;color:#23496f;text-align:left;font-weight:700}
+.option .ico{width:35px;height:35px;border-radius:11px;background:#e5f2ff;color:#197bd5;display:grid;place-items:center;font-size:18px}
+.field{width:100%;padding:13px;border:1px solid #cbdcf0;border-radius:12px;background:#f9fcff;color:var(--ink);outline:none;margin-top:10px}
+.field:focus{border-color:#3698ec;box-shadow:0 0 0 3px #3698ec20}
+.footer-note{text-align:center;font-size:11px;color:#8297ae;margin-top:17px;line-height:1.6}
+.app{padding-bottom:88px;min-height:100vh}.topbar{position:sticky;top:0;z-index:5;background:#ffffffdf;backdrop-filter:blur(18px);border-bottom:1px solid #dce8f5}
+.topbar-inner{max-width:850px;margin:auto;padding:12px 17px;display:flex;align-items:center;justify-content:space-between}
+.brand-mini{font-weight:950;font-size:25px;letter-spacing:3px;color:#15549a}.brand-mini span{color:#2b9beb}
+.top-actions{display:flex;gap:9px}.round{width:40px;height:40px;border:1px solid #d1e2f4;border-radius:50%;background:#f8fbff;color:#176fc3;font-size:19px}
+.content{width:min(100%,850px);margin:auto;padding:18px 14px 28px}
+.heading-row{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:6px 2px 15px}.heading-row h1{font-size:24px;margin:0;color:#143a65}.eyebrow{font-size:10px;letter-spacing:2px;color:#6d8cad}
+.tabs{display:flex;gap:8px;overflow:auto;padding:2px 0 16px;scrollbar-width:none}.tabs button{white-space:nowrap;border:1px solid #d3e3f4;border-radius:22px;padding:9px 15px;background:#ffffffd9;color:#547493;font-size:12px;font-weight:750}.tabs button.active{background:linear-gradient(110deg,#176bd0,#269ff2);color:white;border-color:transparent}
+.post{background:#fff;border:1px solid #dce8f5;border-radius:20px;overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow)}
+.creator{display:flex;align-items:center;gap:10px;padding:13px 14px}.avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#0b4c9c,#62c5ff);color:#fff;font-weight:900}.creator-info{flex:1;min-width:0}.creator-info strong{display:block;font-size:13px}.creator-info small{color:#7892ad;font-size:11px}.more{border:0;background:transparent;color:#6885a3;font-size:21px}
+.cover{height:clamp(210px,58vw,390px);position:relative;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 45%,#147dc3,#092a58 72%)}
+.cover.purple{background:radial-gradient(circle at 50% 45%,#a35dd4,#30104f 72%)}
+.planet{width:min(40vw,175px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 30% 25%,#d7f5ff,#4ab8f1 23%,#1262ad 60%,#062858 82%);box-shadow:inset -20px -20px 35px #001a48aa,0 0 55px #83ddff88;position:relative;animation:float 5s ease-in-out infinite}
+.planet:before{content:"";position:absolute;inset:15% -12%;border:2px solid #b9efffba;border-radius:50%;transform:rotate(-25deg) scaleY(.43)}
+.cover-label{position:absolute;bottom:16px;left:17px;color:#fff;font-size:10px;letter-spacing:2px}
+.play{position:absolute;width:58px;height:58px;border:1px solid #ffffffaa;border-radius:50%;background:#ffffff35;color:#fff;font-size:22px;backdrop-filter:blur(8px)}
+@keyframes float{50%{transform:translateY(-8px)}}
+.caption{padding:13px 15px 5px;font-size:13px;line-height:1.6;color:#315575}
+.actions{display:flex;justify-content:space-around;padding:8px 6px 13px}.actions button{border:0;background:transparent;color:#587896;font-weight:750;font-size:12px;padding:7px 8px;border-radius:9px}.actions button.active{color:#087de0;background:#e9f5ff}
+.comment{display:none;padding:0 14px 14px}.comment.show{display:block}.comment input{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:#f8fbff}
+.bottom{position:fixed;z-index:8;bottom:0;left:0;right:0;display:flex;justify-content:space-around;padding:9px 4px calc(9px + env(safe-area-inset-bottom));background:#ffffffed;border-top:1px solid #d6e5f5;backdrop-filter:blur(18px);box-shadow:0 -8px 25px #245b9212}
+.bottom button{border:0;background:transparent;color:#7189a4;font-size:10px;font-weight:800;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:55px}.bottom button span{font-size:20px;line-height:1}.bottom button.active{color:#087de0}
+.panel{background:#fff;border:1px solid #dce8f5;border-radius:20px;padding:18px;margin-bottom:15px;box-shadow:var(--shadow)}
+.panel h2{font-size:18px;margin:0 0 8px}.panel p{font-size:13px;line-height:1.6;color:#6b829e}
+.searchbox{display:flex;gap:8px}.searchbox input{flex:1;min-width:0;padding:12px;border:1px solid var(--line);border-radius:12px}
+.creator-list{display:grid;gap:10px}.creator-item{display:flex;align-items:center;gap:11px;padding:12px;border:1px solid #e0ebf7;border-radius:14px;background:#f9fcff}.creator-item .primary{margin-left:auto;padding:9px 12px;font-size:12px}
+.live-badge{display:inline-block;background:#fff0f0;color:#d23a4a;padding:5px 9px;border-radius:20px;font-size:10px;font-weight:900;letter-spacing:1px}
+.profile-head{text-align:center;padding:22px 10px}.profile-avatar{width:82px;height:82px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;background:linear-gradient(135deg,#176bd0,#69caff);color:white;font-size:30px;font-weight:900;box-shadow:0 8px 22px #187bd033}
+.stats{display:flex;justify-content:center;gap:30px;margin-top:17px}.stats strong{display:block;font-size:18px}.stats small{color:#8195aa;font-size:11px}
+.spark-upload{display:grid;place-items:center;min-height:155px;border:2px dashed #91bce9;border-radius:16px;background:#f3f9ff;text-align:center;padding:20px;color:#2b659f;cursor:pointer}.spark-upload b{font-size:15px}.spark-upload small{color:#8197af;margin-top:6px}
+video{width:100%;max-height:400px;border-radius:14px;background:#071b36;margin-top:12px}
+.notice{padding:12px;border-radius:12px;background:#eaf7ef;color:#247346;font-size:13px;line-height:1.5;margin-top:12px;display:none}
+.empty{text-align:center;color:#7b91a8;padding:25px 10px;font-size:13px}
+.upload-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.upload-choice button{border:1px solid #cbdff4;border-radius:14px;background:#f6faff;color:#245b95;padding:14px 8px;font-weight:850}
+.upload-choice button.selected{background:linear-gradient(110deg,#1264c2,#269cf0);color:#fff;border-color:transparent}
+.video-post{display:grid;grid-template-columns:minmax(0,1fr) 54px;gap:8px;background:#fff;border:1px solid #dce8f5;border-radius:20px;padding:10px;margin-bottom:15px;box-shadow:var(--shadow)}
+.video-post video{margin:0;max-height:480px;object-fit:contain;background:#071b36}
+.video-post-main{min-width:0}.video-post-actions{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:9px}
+.video-post-actions button{width:50px;min-height:48px;border:0;border-radius:13px;background:#f0f7ff;color:#245b95;font-size:11px;font-weight:850;padding:5px 2px}
+.video-post-actions button span{display:block;font-size:19px;margin-bottom:3px}
+.video-post-actions button.active{background:#e1f1ff;color:#087de0}
+.video-post-meta{padding:9px 4px 4px}.video-post-meta h3{font-size:15px;margin:0 0 5px}.video-post-meta p{font-size:12px;line-height:1.5;color:#617d99;margin:4px 0}
+.video-post-comments{display:none;padding:8px 4px}.video-post-comments.show{display:block}
+.video-post-comments input{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px}
+.video-post-comments .comment-line{font-size:12px;padding:7px 2px;border-bottom:1px solid #edf3fa}
+.thumb-preview{width:100%;max-height:130px;object-fit:cover;border-radius:12px;margin-top:8px}
+.live-preview{width:100%;max-height:360px;aspect-ratio:16/9;object-fit:cover;background:#071b36;border-radius:14px;margin-top:12px}
+@media(max-width:430px){.video-post{grid-template-columns:minmax(0,1fr) 48px;gap:5px}.video-post-actions button{width:45px;font-size:10px}}
+@media(min-width:700px){.content{padding-top:25px}.topbar-inner{padding-left:22px;padding-right:22px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important}}
+
+/* VIDNEX premium dark finish */
+:root{--navy:#05070d;--blue:#277dff;--sky:#54c8ff;--ink:#f4f7fc;--muted:#a4afc0;--line:#273143;--shadow:0 16px 40px rgba(0,0,0,.38)}
+html,body{background:#05070d;color:#f4f7fc}
+#ambient{background:radial-gradient(circle at 12% 12%,#10284a 0,transparent 32%),radial-gradient(circle at 88% 72%,#17102f 0,transparent 35%),linear-gradient(135deg,#05070d,#0b1020)}
+#ambient:before,#ambient:after{border-color:#3d8bff25;box-shadow:0 0 0 35px #3d8bff0c,0 0 0 75px #3d8bff08}
+.brand{background:linear-gradient(100deg,#eaf4ff,#57baff,#8a7bff);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand small{color:#8faed1;-webkit-text-fill-color:#8faed1}
+.card,.panel,.post,.video-post{background:#101722;border-color:#263448;color:#f4f7fc;box-shadow:0 16px 40px #0007}
+.card h1,.heading-row h1,.panel h2,.video-post-meta h3{color:#f4f7fc}
+.muted,.panel p,.caption,.video-post-meta p{color:#aab8ca}
+.lang,.option,.field,.secondary,.tabs button,.searchbox input,.comment input,.upload-choice button{background:#151f2d;color:#eaf2ff;border-color:#304159}
+.lang.selected,.upload-choice button.selected{background:linear-gradient(110deg,#176bd0,#5c8dff);color:#fff}
+.primary{background:linear-gradient(110deg,#176bd0,#675bdf 60%,#48b9ee)}
+.option .ico{background:#1b3554;color:#72bdff}
+.topbar{background:#080d17ed;border-color:#263448}
+.brand-mini{color:#dbeaff}.brand-mini span{color:#54baff}
+.round{background:#141e2c;color:#8bcaff;border-color:#304159}
+.eyebrow,.creator-info small,.creator-item,.stats small{color:#9aaec6}
+.tabs button{color:#b2c2d6}.tabs button.active{background:linear-gradient(110deg,#176bd0,#675bdf)}
+.creator-item{background:#151f2d;border-color:#2b3b51}
+.bottom{background:#080d17f2;border-color:#263448;box-shadow:0 -8px 25px #0008}
+.bottom button{color:#8498b2}.bottom button.active{color:#62baff}
+.video-post-actions button{background:#1a2636;color:#d9eaff}
+.video-post-actions button.active{background:#173b66;color:#75c6ff}
+.spark-upload{background:#121f30;color:#91caff;border-color:#416b9a}
+.video-post-comments input{background:#0c1420;color:#fff;border-color:#33465e}
+.notice{background:#102c23;color:#a5f0c7}
+.empty{color:#91a4bd}
+.profile-avatar{box-shadow:0 8px 28px #176bd055}
+.live-badge{background:#3a1820;color:#ff8e9c}
+.field:focus{border-color:#54baff;box-shadow:0 0 0 3px #54baff25}
+.video-post{position:relative}
+.video-post video{background:#000}
+.video-post.short-post{display:block;position:relative;padding:0;overflow:hidden;border-radius:22px;min-height:calc(100svh - 205px);background:#000;border:1px solid #263448}
+.video-post.short-post .video-post-main{position:relative;min-height:calc(100svh - 205px);display:flex;flex-direction:column;justify-content:flex-end}
+.video-post.short-post .creator{position:absolute;z-index:2;top:10px;left:8px;right:65px;padding:8px;background:linear-gradient(90deg,#0009,transparent);border-radius:14px}
+.video-post.short-post .creator-info strong,.video-post.short-post .creator-info small{color:#fff;text-shadow:0 1px 4px #000}
+.video-post.short-post video{position:absolute;inset:0;width:100%;height:100%;max-height:none;aspect-ratio:auto;object-fit:cover;border-radius:0;margin:0}
+.video-post.short-post .video-post-meta{position:relative;z-index:2;padding:90px 78px 16px 16px;background:linear-gradient(0deg,#000d,transparent);pointer-events:none}
+.video-post.short-post .video-post-meta h3{font-size:17px;color:#fff;text-shadow:0 1px 5px #000}
+.video-post.short-post .video-post-meta p{color:#e1e8f2;text-shadow:0 1px 5px #000}
+.video-post.short-post .video-post-actions{position:absolute;z-index:3;right:8px;top:35%;gap:10px}
+.video-post.short-post .video-post-actions button{width:52px;min-height:54px;background:#080d17b8;color:#fff;border:1px solid #ffffff30;backdrop-filter:blur(10px);border-radius:16px}
+.video-post.short-post .video-post-actions button.active{background:#176bd0e8}
+.video-post.short-post .video-post-comments{position:absolute;z-index:4;left:10px;right:70px;bottom:10px;max-height:38%;overflow:auto;background:#101722f2;border:1px solid #3a4b61;border-radius:16px;padding:10px}
+.video-post.short-post .video-post-comments.show{display:block}
+.video-post.short-post .video-post-comments input{font-size:16px}
+.video-post.short-post .video-post-comments .comment-line{color:#eaf2ff;border-color:#2b3b51}
+.video-post.short-post .video-post-comments{display:none}
+.video-post.short-post .video-post-comments.show{display:block}
+.video-post.short-post .video-post-actions button span{font-size:21px}
+.video-post-actions button:focus-visible,.bottom button:focus-visible{outline:2px solid #65c3ff;outline-offset:2px}
+@media(max-width:480px){
+ .video-post.short-post,.video-post.short-post .video-post-main{min-height:calc(100svh - 190px)}
+ .video-post.short-post .video-post-actions{right:6px}
+ .video-post.short-post .video-post-meta{padding-right:72px}
+ .bottom button{min-width:48px}
+}
+
+
+/* Five-second VIDNEX welcome motion */
+.welcome-motion{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:radial-gradient(ellipse at center,#102b50 0%,#080e1c 52%,#03050a 100%);opacity:0;visibility:hidden;pointer-events:none}
+.welcome-motion.show{visibility:visible;animation:welcomeScreenIn .35s ease-out forwards}
+.welcome-motion.hide{animation:welcomeScreenOut .45s ease-in forwards}
+.welcome-motion-inner{text-align:center;padding:24px;max-width:100%;overflow:hidden}
+.welcome-kicker{font-size:clamp(10px,2.4vw,13px);font-weight:800;letter-spacing:.42em;color:#8dcfff;opacity:0;animation:welcomeKicker 1s ease .2s forwards}
+.welcome-letters{display:flex;justify-content:center;flex-wrap:nowrap;gap:clamp(0px,.45vw,5px);margin:22px 0 17px;white-space:pre}
+.welcome-letter{display:inline-block;font-size:clamp(27px,8vw,68px);font-weight:1000;letter-spacing:.015em;color:#fff;text-shadow:0 0 12px #4bbaff,0 0 34px #287dff;opacity:0;transform:translateY(34px) scale(.72);animation:welcomeLetterIn .48s cubic-bezier(.2,.8,.2,1) forwards}
+.welcome-letter.space{width:.28em}
+.welcome-line{height:2px;width:0;margin:0 auto;background:linear-gradient(90deg,transparent,#55c7ff,#9b8cff,transparent);box-shadow:0 0 18px #4aaaff;animation:welcomeLineIn 1s ease 2.7s forwards}
+@keyframes welcomeScreenIn{to{opacity:1}}
+@keyframes welcomeScreenOut{to{opacity:0;visibility:hidden}}
+@keyframes welcomeKicker{to{opacity:1;letter-spacing:.28em}}
+@keyframes welcomeLetterIn{to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes welcomeLineIn{to{width:min(76vw,420px)}}
+@media(prefers-reduced-motion:reduce){.welcome-motion,.welcome-motion *{animation-duration:.01ms!important;animation-delay:0ms!important}}
+
+</style>
+</head>
+<body>
+<div id="ambient"></div>
+<div id="welcomeMotion" class="welcome-motion" aria-label="Welcome to VIDNEX" aria-hidden="true">
+ <div class="welcome-motion-inner">
+  <div class="welcome-kicker">YOUR WORLD. YOUR VIDEOS.</div>
+  <div class="welcome-letters" id="welcomeLetters"></div>
+  <div class="welcome-line"></div>
+ </div>
+</div>
+
+<section class="center-screen active" id="languageScreen">
+ <div>
+  <div class="brand">VIDNEX<small>WATCH • CREATE • CONNECT</small></div>
+  <div class="card" style="margin-top:24px">
+   <h1 id="chooseTitle">Choose your language</h1><p class="muted" id="chooseDesc">Select your preferred language to continue.</p>
+   <div class="lang-grid">
+    <button class="lang selected" data-lang="en">English</button><button class="lang" data-lang="kn">ಕನ್ನಡ</button>
+    <button class="lang" data-lang="hi">हिन्दी</button><button class="lang" data-lang="es">Español</button>
+    <button class="lang" data-lang="fr">Français</button><button class="lang" data-lang="ar">العربية</button>
+    <button class="lang" data-lang="de">Deutsch</button><button class="lang" data-lang="pt">Português</button>
+   </div>
+   <button class="primary full" id="continueBtn">CONTINUE →</button>
+   <div class="footer-note">A NEW WORLD OF VIDEOS</div>
+  </div>
+ </div>
+</section>
+
+<section class="center-screen" id="welcomeScreen">
+ <div>
+  <div class="brand">VIDNEX<small id="welcomeTag">YOUR WORLD. YOUR VIDEOS.</small></div>
+  <div class="card" style="margin-top:24px">
+   <h1 id="welcomeTitle">Welcome to VIDNEX</h1><p class="muted" id="welcomeDesc">Discover videos, share creativity and connect with the world.</p>
+   <button class="option" data-auth="signup"><span class="ico">＋</span><span data-t="signup">Create account</span></button>
+   <button class="option" data-auth="login"><span class="ico">↗</span><span data-t="login">Login</span></button>
+   <button class="option" data-auth="guest"><span class="ico">◎</span><span data-t="guest">Explore as Guest</span></button>
+   <div class="footer-note" id="terms">Preview version. Account services need a secure backend.</div>
+   <button class="secondary full" id="changeLanguage" style="margin-top:12px">Change language</button>
+  </div>
+ </div>
+</section>
+
+<section class="center-screen" id="authScreen">
+ <div>
+  <div class="brand">VIDNEX<small>WATCH • CREATE • CONNECT</small></div>
+  <div class="card" style="margin-top:24px">
+   <h1 id="authTitle">Create account</h1><p class="muted" id="authDesc">Join VIDNEX.</p>
+   <form id="authForm"><div id="authFields"></div><button class="primary full" type="submit" id="authSubmit" style="margin-top:16px">CONTINUE</button></form>
+   <button class="secondary full" id="authBack" style="margin-top:12px">← BACK</button>
+   <div class="footer-note" id="authNotice">Demo only — account creation is not connected to a server.</div>
+  </div>
+ </div>
+</section>
+
+<section class="screen app" id="appScreen">
+ <header class="topbar"><div class="topbar-inner"><div class="brand-mini">VID<span>NEX</span></div><div class="top-actions"><button class="round" id="quickSearch" aria-label="Search">⌕</button><button class="round" id="quickLanguage" aria-label="Language">文</button></div></div></header>
+ <main>
+  <section class="page content" id="homePage">
+   <div class="heading-row"><h1 data-t="forYou">For you</h1><span class="eyebrow">YOUR DAILY DISCOVERY</span></div>
+   <div class="tabs" id="homeTabs"><button class="active" data-category="For you">For you</button><button data-category="Following">Following</button><button data-category="Music">Music</button><button data-category="Technology">Technology</button><button data-category="Entertainment">Entertainment</button></div>
+   <div id="homeFeed">
+    <article class="post" data-tags="For you Technology">
+     <div class="creator"><div class="avatar">V</div><div class="creator-info"><strong>VIDNEX Creator</strong><small>@vidnex_official · Preview post</small></div><button class="more" aria-label="More">•••</button></div>
+     <div class="cover"><div class="planet"></div><button class="play" aria-label="Preview">▶</button><span class="cover-label">EXPLORE THE WORLD · VIDNEX</span></div>
+     <p class="caption">A new world of videos starts here. Discover creativity from around the world. 🌍</p>
+     <div class="actions"><button class="like">♡ <span>APPLAUD 128</span></button><button class="discuss">▢ DISCUSS</button><button class="share">↗ SPREAD</button></div><div class="comment"><input placeholder="Write a comment…"></div>
+    </article>
+    <article class="post" data-tags="For you Entertainment Music">
+     <div class="creator"><div class="avatar" style="background:linear-gradient(135deg,#5639a9,#b48aff)">C</div><div class="creator-info"><strong>Creative World</strong><small>@creativeworld · Preview post</small></div><button class="more" aria-label="More">•••</button></div>
+     <div class="cover purple"><div class="planet" style="background:radial-gradient(circle at 30% 25%,#ffe5ff,#ce8bff 25%,#7638bb 60%,#30105e 82%)"></div><button class="play" aria-label="Preview">▶</button><span class="cover-label">CREATE · INSPIRE · SHARE</span></div>
+     <p class="caption">Every creator has a story. This is your space to share yours. ✨</p>
+     <div class="actions"><button class="like">♡ <span>APPLAUD 86</span></button><button class="discuss">▢ DISCUSS</button><button class="share">↗ SPREAD</button></div><div class="comment"><input placeholder="Write a comment…"></div>
+    </article>
+   </div>
+   <div class="empty" id="homeEmpty" hidden>No preview posts in this category yet.</div>
+  </section>
+
+  <section class="page content" id="discoverPage" hidden>
+   <div class="heading-row"><h1 data-t="discover">Discover</h1><span class="eyebrow">FIND SOMETHING NEW</span></div>
+   <div class="panel"><div class="searchbox"><input id="discoverInput" placeholder="Search creators or topics…"><button class="primary" id="discoverSearch">SEARCH</button></div><p>Search the VIDNEX preview feed and explore categories.</p></div>
+   <div class="tabs" id="discoverTabs"><button class="active" data-discover="All">All</button><button data-discover="Music">Music</button><button data-discover="Technology">Technology</button><button data-discover="Entertainment">Entertainment</button><button data-discover="Travel">Travel</button></div>
+   <div id="discoverResults" class="creator-list">
+    <div class="creator-item" data-search="vidnex creator technology videos" data-cat="Technology"><div class="avatar">V</div><div><strong>VIDNEX Creator</strong><br><small class="muted">Technology · Official preview</small></div><button class="primary follow">FOLLOW</button></div>
+    <div class="creator-item" data-search="creative world music entertainment" data-cat="Entertainment"><div class="avatar" style="background:linear-gradient(135deg,#5639a9,#b48aff)">C</div><div><strong>Creative World</strong><br><small class="muted">Entertainment · Creator preview</small></div><button class="primary follow">FOLLOW</button></div>
+   </div><div class="empty" id="discoverEmpty" hidden>No matching creators found.</div>
+  </section>
+
+  <section class="page content" id="sparkPage" hidden>
+   <div class="heading-row"><h1>VIDNEX UPLOAD ✦</h1><span class="eyebrow">CREATE · UPLOAD · SHARE</span></div>
+   <div class="panel"><h2>Choose your video type</h2><p>Select where your video belongs before uploading.</p>
+    <div class="upload-choice"><button type="button" class="selected" data-upload-type="short">▣ VIDNEX SHORTS</button><button type="button" data-upload-type="long">▶ VIDNEX VIDEOS</button></div>
+    <label class="spark-upload" for="videoFile"><span style="font-size:35px">＋</span><b>Select a video</b><small>MP4, WebM or MOV · Choose from your device</small></label>
+    <input id="videoFile" type="file" accept="video/*" hidden><div class="muted" id="fileName" style="margin-top:9px"></div><video id="videoPreview" controls playsinline hidden></video>
+    <label class="muted" style="display:block;margin-top:16px;font-weight:700">Video title<input class="field" id="videoTitle" maxlength="100" placeholder="Give your video a title"></label>
+    <label class="muted" style="display:block;margin-top:14px;font-weight:700">Description<textarea class="field" id="videoDescription" maxlength="500" rows="3" placeholder="Tell viewers about your video…"></textarea></label>
+    <label class="muted" style="display:block;margin-top:14px;font-weight:700">Thumbnail (optional)<input class="field" id="thumbnailFile" type="file" accept="image/*"><img id="thumbnailPreview" class="thumb-preview" hidden alt="Thumbnail preview"></label>
+    <label class="muted" style="display:block;margin-top:14px;font-weight:700">Category<select class="field" id="videoCategory"><option>Entertainment</option><option>Music</option><option>Technology</option><option>Education</option><option>Gaming</option><option>Travel</option><option>Sports</option><option>Other</option></select></label>
+    <label class="muted" style="display:block;margin-top:14px;font-weight:700">Tags<input class="field" id="videoTags" maxlength="160" placeholder="Comedy, Kannada, Music (comma separated)"></label>
+    <label class="muted" style="display:block;margin-top:14px;font-weight:700">Visibility<select class="field" id="videoVisibility"><option value="public">Public</option><option value="unlisted">Unlisted</option><option value="private">Private</option></select></label>
+    <button class="primary full" id="prepareVideo" style="margin-top:17px">PUBLISH VIDEO</button><div class="notice" id="sparkNotice"></div>
+   </div>
+  </section>
+
+  <section class="page content" id="shortsPage" hidden>
+   <div class="heading-row"><h1>VIDNEX SHORTS</h1><span class="eyebrow">QUICK VIDEOS · BIG MOMENTS</span></div>
+   <div id="shortsFeed"></div><div class="empty" id="shortsEmpty">Your Shorts will appear here after publishing.</div>
+  </section>
+  <section class="page content" id="videosPage" hidden>
+   <div class="heading-row"><h1>VIDNEX VIDEOS</h1><span class="eyebrow">WATCH · DISCOVER · ENJOY</span></div>
+   <div id="videosFeed"></div><div class="empty" id="videosEmpty">Your videos will appear here after publishing.</div>
+  </section>
+
+  <section class="page content" id="livePage" hidden>
+   <div class="heading-row"><h1 data-t="live">Live Studio</h1><span class="eyebrow">LIVE COMMUNITY</span></div>
+   <div class="panel"><span class="live-badge">● VIDNEX LIVE STUDIO</span><h2 style="margin-top:13px">Camera & microphone check</h2><p>Start your camera preview and check your microphone before going live. This page can preview your camera locally. Broadcasting to viewers needs a live-stream server connection.</p><video id="livePreview" class="live-preview" autoplay muted playsinline hidden></video><div class="upload-choice"><button type="button" id="startLive">START CAMERA</button><button type="button" id="stopLive">STOP PREVIEW</button></div><div class="notice" id="liveNotice"></div></div>
+   <div class="panel"><h2>Live now</h2><div class="empty">No creators are live in this preview yet.</div></div>
+  </section>
+
+  <section class="page content" id="profilePage" hidden>
+   <div class="heading-row"><h1 data-t="profile">Profile</h1><span class="eyebrow">YOUR CREATOR SPACE</span></div>
+   <div class="panel profile-head"><div class="profile-avatar" id="profileInitial">V</div><h2 id="profileName">VIDNEX Viewer</h2><p id="profileHandle">@vidnex_viewer</p><div class="stats"><div><strong>0</strong><small>VIDEOS</small></div><div><strong>0</strong><small>FOLLOWERS</small></div><div><strong>0</strong><small>FOLLOWING</small></div></div></div>
+   <div class="panel"><h2>Edit profile</h2><label class="muted">Display name<input class="field" id="editName" placeholder="Your name" maxlength="40"></label><label class="muted" style="display:block;margin-top:12px">Username<input class="field" id="editHandle" placeholder="username" maxlength="24"></label><label class="muted" style="display:block;margin-top:12px">Bio<textarea class="field" id="editBio" rows="3" maxlength="160" placeholder="Tell the world about you…"></textarea></label><button class="primary full" id="saveProfile" style="margin-top:15px">SAVE PROFILE</button><div class="notice" id="profileNotice"></div></div>
+   <div class="panel"><h2>App settings</h2><button class="option" id="profileLanguage"><span class="ico">文</span><span>Change language</span></button><button class="option" id="openLiveStudio"><span class="ico">◉</span><span>Open VIDNEX Live Studio</span></button><button class="option" id="signOut"><span class="ico">↩</span><span>Back to welcome screen</span></button></div>
+  </section>
+ </main>
+ <nav class="bottom" aria-label="Main navigation">
+  <button class="active" data-page="homePage"><span>⌂</span><b data-t="home">HOME</b></button>
+  <button data-page="shortsPage"><span>▣</span><b>SHORTS</b></button>
+  <button data-page="videosPage"><span>▶</span><b>VIDEOS</b></button>
+  <button data-page="discoverPage"><span>⌕</span><b data-t="discover">DISCOVER</b></button>
+  <button data-page="sparkPage"><span>＋</span><b>UPLOAD</b></button>
+  <button data-page="profilePage"><span>♙</span><b data-t="profile">PROFILE</b></button>
+ </nav>
+</section>
+
+<script>
+const $ = (s, root=document) => root.querySelector(s);
+const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+const screens = ['languageScreen','welcomeScreen','authScreen','appScreen'];
+let selectedLanguage = localStorage.getItem('vidnex_language') || 'en';
+let authMode = 'signup';
+let currentUser = JSON.parse(localStorage.getItem('vidnex_profile') || '{"name":"VIDNEX Viewer","handle":"vidnex_viewer","bio":""}');
+let selectedDiscover = 'All';
+
+const translations = {
+ en:{choose:'Choose your language',desc:'Select your preferred language to continue.',continue:'CONTINUE →',welcome:'Welcome to VIDNEX',welcomeDesc:'Discover videos, share creativity and connect with the world.',signup:'Create account',login:'Login',guest:'Explore as Guest',forYou:'For you',discover:'Discover',live:'Live',profile:'Profile',home:'HOME'},
+ kn:{choose:'ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',desc:'ಮುಂದುವರಿಯಲು ನಿಮ್ಮ ಇಷ್ಟದ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ.',continue:'ಮುಂದುವರಿಯಿರಿ →',welcome:'VIDNEX ಗೆ ಸ್ವಾಗತ',welcomeDesc:'ವೀಡಿಯೊಗಳನ್ನು ನೋಡಿ, ನಿಮ್ಮ ಸೃಜನಶೀಲತೆಯನ್ನು ಹಂಚಿಕೊಳ್ಳಿ ಮತ್ತು ಜಗತ್ತಿನೊಂದಿಗೆ ಸಂಪರ್ಕ ಸಾಧಿಸಿ.',signup:'ಖಾತೆ ತೆರೆಯಿರಿ',login:'ಲಾಗಿನ್',guest:'ಅತಿಥಿಯಾಗಿ ವೀಕ್ಷಿಸಿ',forYou:'ನಿಮಗಾಗಿ',discover:'ಹುಡುಕಿ',live:'ಲೈವ್',profile:'ಪ್ರೊಫೈಲ್',home:'ಮುಖಪುಟ'},
+ hi:{choose:'अपनी भाषा चुनें',desc:'जारी रखने के लिए अपनी पसंदीदा भाषा चुनें।',continue:'जारी रखें →',welcome:'VIDNEX में आपका स्वागत है',welcomeDesc:'वीडियो खोजें, रचनात्मकता साझा करें और दुनिया से जुड़ें।',signup:'खाता बनाएँ',login:'लॉगिन',guest:'अतिथि के रूप में देखें',forYou:'आपके लिए',discover:'खोजें',live:'लाइव',profile:'प्रोफ़ाइल',home:'होम'},
+ es:{choose:'Elige tu idioma',desc:'Selecciona tu idioma preferido para continuar.',continue:'CONTINUAR →',welcome:'Bienvenido a VIDNEX',welcomeDesc:'Descubre vídeos, comparte creatividad y conecta con el mundo.',signup:'Crear cuenta',login:'Iniciar sesión',guest:'Explorar como invitado',forYou:'Para ti',discover:'Descubrir',live:'En vivo',profile:'Perfil',home:'INICIO'},
+ fr:{choose:'Choisissez votre langue',desc:'Sélectionnez votre langue préférée pour continuer.',continue:'CONTINUER →',welcome:'Bienvenue sur VIDNEX',welcomeDesc:'Découvrez des vidéos, partagez votre créativité et connectez-vous au monde.',signup:'Créer un compte',login:'Connexion',guest:'Explorer comme invité',forYou:'Pour vous',discover:'Découvrir',live:'En direct',profile:'Profil',home:'ACCUEIL'},
+ ar:{choose:'اختر لغتك',desc:'اختر لغتك المفضلة للمتابعة.',continue:'متابعة ←',welcome:'مرحبًا بك في VIDNEX',welcomeDesc:'اكتشف الفيديوهات وشارك إبداعك وتواصل مع العالم.',signup:'إنشاء حساب',login:'تسجيل الدخول',guest:'التصفح كضيف',forYou:'لك',discover:'اكتشف',live:'مباشر',profile:'الملف الشخصي',home:'الرئيسية'},
+ de:{choose:'Sprache auswählen',desc:'Wähle deine bevorzugte Sprache, um fortzufahren.',continue:'WEITER →',welcome:'Willkommen bei VIDNEX',welcomeDesc:'Entdecke Videos, teile Kreativität und verbinde dich mit der Welt.',signup:'Konto erstellen',login:'Anmelden',guest:'Als Gast entdecken',forYou:'Für dich',discover:'Entdecken',live:'Live',profile:'Profil',home:'START'},
+ pt:{choose:'Escolha seu idioma',desc:'Selecione seu idioma preferido para continuar.',continue:'CONTINUAR →',welcome:'Bem-vindo ao VIDNEX',welcomeDesc:'Descubra vídeos, compartilhe criatividade e conecte-se com o mundo.',signup:'Criar conta',login:'Entrar',guest:'Explorar como visitante',forYou:'Para você',discover:'Descobrir',live:'Ao vivo',profile:'Perfil',home:'INÍCIO'}
+};
+
+
+function showToast(message){
+ let toast=$('#vidnexToast');
+ if(!toast){toast=document.createElement('div');toast.id='vidnexToast';toast.setAttribute('role','status');toast.style.cssText='position:fixed;z-index:30;left:50%;bottom:92px;transform:translateX(-50%);max-width:90vw;padding:12px 16px;border:1px solid #465a75;border-radius:14px;background:#111c2b;color:#fff;box-shadow:0 8px 30px #0009;font-size:13px;text-align:center';document.body.append(toast)}
+ toast.textContent=message;toast.style.display='block';clearTimeout(toast._timer);toast._timer=setTimeout(()=>toast.style.display='none',3200);
+}
+
+function showScreen(id){
+ screens.forEach(x=>$('#'+x).classList.toggle('active',x===id));
+ window.scrollTo(0,0);
+}
+function applyLanguage(){
+ const t=translations[selectedLanguage]||translations.en;
+ $('#chooseTitle').textContent=t.choose; $('#chooseDesc').textContent=t.desc; $('#continueBtn').textContent=t.continue;
+ $('#welcomeTitle').textContent=t.welcome; $('#welcomeDesc').textContent=t.welcomeDesc;
+ $$('[data-t]').forEach(el=>{const key=el.dataset.t;if(t[key])el.textContent=t[key]});
+ document.documentElement.lang=selectedLanguage;
+ document.documentElement.dir=selectedLanguage==='ar'?'rtl':'ltr';
+ $$('.lang').forEach(b=>b.classList.toggle('selected',b.dataset.lang===selectedLanguage));
+}
+$$('.lang').forEach(btn=>btn.addEventListener('click',()=>{selectedLanguage=btn.dataset.lang;applyLanguage()}));
+$('#continueBtn').addEventListener('click',()=>{localStorage.setItem('vidnex_language',selectedLanguage);showScreen('welcomeScreen')});
+$('#changeLanguage').addEventListener('click',()=>showScreen('languageScreen'));
+$('#quickLanguage').addEventListener('click',()=>showScreen('languageScreen'));
+$('#profileLanguage').addEventListener('click',()=>showScreen('languageScreen'));
+
+function openAuth(mode){
+ authMode=mode;
+ if(mode==='guest'){openApp();return}
+ $('#authTitle').textContent=mode==='signup'?'Create account':'Login';
+ $('#authDesc').textContent=mode==='signup'?'Create a local preview profile.':'Enter your details to continue in this demo.';
+ $('#authFields').innerHTML = mode==='signup'
+  ? '<input class="field" id="authName" required maxlength="40" placeholder="Your name"><input class="field" id="authEmail" type="email" required placeholder="Email address"><input class="field" id="authPassword" type="password" minlength="6" required placeholder="Password (6+ characters)">'
+  : '<input class="field" id="authEmail" type="email" required placeholder="Email address"><input class="field" id="authPassword" type="password" required placeholder="Password">';
+ $('#authSubmit').textContent=mode==='signup'?'CREATE ACCOUNT':'LOGIN';
+ showScreen('authScreen');
+}
+$$('[data-auth]').forEach(b=>b.addEventListener('click',()=>openAuth(b.dataset.auth)));
+$('#authBack').addEventListener('click',()=>showScreen('welcomeScreen'));
+$('#authForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const name=authMode==='signup'?$('#authName').value.trim():(currentUser.name||'VIDNEX Viewer');
+ currentUser={...currentUser,name:name||'VIDNEX Viewer',handle:(currentUser.handle||'vidnex_viewer'),bio:currentUser.bio||''};
+ localStorage.setItem('vidnex_profile',JSON.stringify(currentUser));
+ openApp();
+});
+function playWelcomeSound(){
+ // Cinematic brand-reveal stinger: airy riser, deep impact and bright shimmer.
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtx)return;
+  const ctx=new AudioCtx();
+  const play=()=>{
+   const now=ctx.currentTime;
+   const master=ctx.createGain();
+   master.gain.setValueAtTime(0.0001,now);
+   master.gain.exponentialRampToValueAtTime(0.72,now+0.12);
+   master.gain.setValueAtTime(0.72,now+0.35);
+   master.gain.exponentialRampToValueAtTime(0.0001,now+4.25);
+   master.connect(ctx.destination);
+
+   // Airy cinematic riser (filtered noise sweep)
+   const length=Math.floor(ctx.sampleRate*1.8);
+   const noiseBuffer=ctx.createBuffer(1,length,ctx.sampleRate);
+   const data=noiseBuffer.getChannelData(0);
+   for(let i=0;i<length;i++) data[i]=(Math.random()*2-1)*(1-i/length);
+   const noise=ctx.createBufferSource(); noise.buffer=noiseBuffer;
+   const filter=ctx.createBiquadFilter(); filter.type='lowpass';
+   filter.frequency.setValueAtTime(180,now);
+   filter.frequency.exponentialRampToValueAtTime(6500,now+1.75);
+   const ng=ctx.createGain(); ng.gain.setValueAtTime(0.0001,now);
+   ng.gain.exponentialRampToValueAtTime(0.22,now+1.25);
+   ng.gain.exponentialRampToValueAtTime(0.0001,now+1.9);
+   noise.connect(filter);filter.connect(ng);ng.connect(master);
+   noise.start(now);noise.stop(now+1.9);
+
+   // Deep, soft cinematic impact under the logo reveal
+   const bass=ctx.createOscillator(), bg=ctx.createGain();
+   bass.type='sine'; bass.frequency.setValueAtTime(105,now+1.25);
+   bass.frequency.exponentialRampToValueAtTime(42,now+2.05);
+   bg.gain.setValueAtTime(0.0001,now+1.25);
+   bg.gain.exponentialRampToValueAtTime(0.62,now+1.32);
+   bg.gain.exponentialRampToValueAtTime(0.0001,now+2.65);
+   bass.connect(bg);bg.connect(master);bass.start(now+1.25);bass.stop(now+2.7);
+
+   // Layered glass/metallic logo chime with a long polished tail
+   [392,523.25,659.25,783.99,1046.5].forEach((freq,i)=>{
+    const t=now+1.34+i*0.095;
+    const osc=ctx.createOscillator(), g=ctx.createGain();
+    osc.type=i<2?'triangle':'sine'; osc.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(i===0?0.20:0.13,t+0.045);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+2.45);
+    osc.connect(g);g.connect(master);osc.start(t);osc.stop(t+2.5);
+   });
+   // Subtle high shimmer sweep
+   const shimmer=ctx.createOscillator(), sg=ctx.createGain();
+   shimmer.type='sine'; shimmer.frequency.setValueAtTime(1400,now+1.45);
+   shimmer.frequency.exponentialRampToValueAtTime(2400,now+3.5);
+   sg.gain.setValueAtTime(0.0001,now+1.45);
+   sg.gain.exponentialRampToValueAtTime(0.055,now+1.9);
+   sg.gain.exponentialRampToValueAtTime(0.0001,now+4.0);
+   shimmer.connect(sg);sg.connect(master);shimmer.start(now+1.45);shimmer.stop(now+4.05);
+   setTimeout(()=>ctx.close().catch(()=>{}),4700);
+  };
+  if(ctx.state==='suspended')ctx.resume().then(play).catch(()=>ctx.close());
+  else play();
+ }catch(e){console.warn('VIDNEX cinematic welcome audio unavailable:',e);}
+}
+function playWelcomeMotion(){
+ const overlay=$('#welcomeMotion'),letters=$('#welcomeLetters');
+ if(!overlay||!letters)return;
+ playWelcomeSound();
+ letters.replaceChildren();
+ [...'WELCOME TO VIDNEX'].forEach((ch,i)=>{
+  const span=document.createElement('span');
+  span.className='welcome-letter'+(ch===' '?' space':'');
+  span.textContent=ch===' '?' ':ch;
+  span.style.animationDelay=(0.48+i*0.105)+'s';
+  letters.append(span);
+ });
+ overlay.classList.remove('hide');overlay.classList.add('show');
+ overlay.setAttribute('aria-hidden','false');
+ clearTimeout(overlay._hideTimer);clearTimeout(overlay._removeTimer);
+ overlay._hideTimer=setTimeout(()=>{overlay.classList.remove('show');overlay.classList.add('hide');overlay.setAttribute('aria-hidden','true')},4550);
+ overlay._removeTimer=setTimeout(()=>overlay.classList.remove('hide'),5050);
+}
+function openApp(){showScreen('appScreen');updateProfile();showPage('homePage');playWelcomeMotion()}
+// Firebase bridge used by the secure authentication module.
+window.vidnexSetUser = user => { currentUser = user; localStorage.setItem('vidnex_profile', JSON.stringify(user)); openApp(); window.dispatchEvent(new Event('vidnex-user-ready')); };
+window.vidnexGetUser = () => currentUser;
+window.vidnexRefreshProfile = () => updateProfile();
+
+function showPage(pageId){
+ $$('.page').forEach(p=>p.hidden=p.id!==pageId);
+ $$('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===pageId));
+ window.scrollTo(0,0);
+}
+$$('[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+$('#quickSearch').addEventListener('click',()=>{showPage('discoverPage');$('#discoverInput').focus()});
+
+$('#homeTabs').addEventListener('click',e=>{
+ const btn=e.target.closest('[data-category]');if(!btn)return;
+ $$('#homeTabs button').forEach(b=>b.classList.toggle('active',b===btn));
+ const category=btn.dataset.category;let visible=0;
+ $$('#homeFeed .post').forEach(post=>{
+  const tags=post.dataset.tags.split(' ');
+  const show=category==='For you'||(category==='Following'&&false)||tags.includes(category);
+  post.hidden=!show;if(show)visible++;
+ });
+ $('#homeEmpty').hidden=visible!==0;
+});
+$('#homeFeed').addEventListener('click',e=>{
+ const post=e.target.closest('.post');if(!post)return;
+ if(e.target.closest('.like')){
+  const btn=e.target.closest('.like');btn.classList.toggle('active');
+  const span=$('span',btn);let n=parseInt(span.textContent.match(/\d+/)?.[0]||'0');
+  span.textContent='APPLAUD '+(n+(btn.classList.contains('active')?1:-1));
+ }
+ if(e.target.closest('.discuss'))$('.comment',post).classList.toggle('show');
+ if(e.target.closest('.share')){
+  const text='Check out VIDNEX — Watch • Create • Connect!';
+  if(navigator.share)navigator.share({title:'VIDNEX',text}).catch(()=>{});
+  else if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>alert('VIDNEX share text copied.')).catch(()=>alert(text));
+  else alert(text);
+ }
+ if(e.target.closest('.play'))alert('This is a sample preview card. Upload your own video in SPARK.');
+ if(e.target.closest('.more'))alert('Preview post options are not connected yet.');
+});
+
+function filterDiscover(){
+ const q=$('#discoverInput').value.trim().toLowerCase();let count=0;
+ $$('.creator-item').forEach(item=>{
+  const matchesText=(item.dataset.search||'').includes(q);
+  const matchesCat=selectedDiscover==='All'||item.dataset.cat===selectedDiscover;
+  item.hidden=!(matchesText&&matchesCat);if(!item.hidden)count++;
+ });
+ $('#discoverEmpty').hidden=count!==0;
+}
+$('#discoverSearch').addEventListener('click',filterDiscover);
+$('#discoverInput').addEventListener('keydown',e=>{if(e.key==='Enter')filterDiscover()});
+$('#discoverTabs').addEventListener('click',e=>{
+ const b=e.target.closest('[data-discover]');if(!b)return;
+ selectedDiscover=b.dataset.discover;
+ $$('#discoverTabs button').forEach(x=>x.classList.toggle('active',x===b));filterDiscover();
+});
+$('#discoverResults').addEventListener('click',e=>{
+ const b=e.target.closest('.follow');if(!b)return;
+ b.classList.toggle('active');b.textContent=b.classList.contains('active')?'FOLLOWING':'FOLLOW';
+});
+
+let currentVideoUrl=null, currentThumbUrl=null, selectedUploadType='short', liveStream=null;
+const publishedVideos=[];
+$$('[data-upload-type]').forEach(btn=>btn.addEventListener('click',()=>{
+ selectedUploadType=btn.dataset.uploadType;
+ $$('[data-upload-type]').forEach(x=>x.classList.toggle('selected',x===btn));
+}));
+$('#videoFile').addEventListener('change',e=>{
+ const file=e.target.files[0];if(!file)return;
+ if(currentVideoUrl)URL.revokeObjectURL(currentVideoUrl);
+ currentVideoUrl=URL.createObjectURL(file);
+ $('#videoPreview').src=currentVideoUrl;$('#videoPreview').hidden=false;
+ $('#fileName').textContent=file.name+' · '+(file.size/1024/1024).toFixed(1)+' MB';
+ $('#sparkNotice').style.display='none';
+});
+$('#thumbnailFile').addEventListener('change',e=>{
+ const file=e.target.files[0];if(!file)return;
+ if(currentThumbUrl)URL.revokeObjectURL(currentThumbUrl);
+ currentThumbUrl=URL.createObjectURL(file);
+ $('#thumbnailPreview').src=currentThumbUrl;$('#thumbnailPreview').hidden=false;
+});
+function showUploadNotice(message,ok=true){
+ const box=$('#sparkNotice');box.style.display='block';
+ box.style.background=ok?'#eaf7ef':'#fff4e5';box.style.color=ok?'#247346':'#8a5700';box.textContent=message;
+}
+function makeVideoPost(item){
+ const article=document.createElement('article');article.className='video-post'+(item.type==='short'?' short-post':'');
+ const main=document.createElement('div');main.className='video-post-main';
+ const creator=document.createElement('div');creator.className='creator';
+ const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=(item.ownerName||currentUser.name||'V').trim()[0].toUpperCase();
+ const info=document.createElement('div');info.className='creator-info';
+ const strong=document.createElement('strong');strong.textContent=item.ownerName||currentUser.name||'VIDNEX Creator';
+ const small=document.createElement('small');small.textContent='@'+(item.ownerHandle||currentUser.handle||'vidnex_viewer')+' · '+(item.type==='short'?'VIDNEX SHORTS':'VIDNEX VIDEOS');
+ info.append(strong,small);creator.append(avatar,info);main.append(creator);
+ const video=document.createElement('video');video.controls=true;video.playsInline=true;video.setAttribute('webkit-playsinline','');video.src=item.url;
+ if(item.thumbnail){video.poster=item.thumbnail}
+ if(item.type==='short'){video.style.maxHeight='520px';video.style.aspectRatio='9/16';video.style.objectFit='contain'}
+ main.append(video);
+ const meta=document.createElement('div');meta.className='video-post-meta';
+ const title=document.createElement('h3');title.textContent=item.title;
+ const desc=document.createElement('p');desc.textContent=item.description||'';
+ const details=document.createElement('p');details.textContent=item.category+' · '+(item.tags||'')+' · '+item.visibility.toUpperCase();
+ meta.append(title,desc,details);main.append(meta);
+ const comments=document.createElement('div');comments.className='video-post-comments';
+ const commentInput=document.createElement('input');commentInput.placeholder='Write a TALK comment…';
+ const commentList=document.createElement('div');comments.append(commentInput,commentList);main.append(comments);
+ const actions=document.createElement('div');actions.className='video-post-actions';
+ const addAction=(icon,label,handler)=>{const b=document.createElement('button');b.type='button';b.innerHTML='<span>'+icon+'</span>'+label;b.addEventListener('click',handler);actions.append(b);return b};
+ let likes=0,dislikes=0;
+ const likeBtn=addAction('♥','VIBE',()=>{const active=likeBtn.classList.toggle('active');likes=Math.max(0,likes+(active?1:-1));likeBtn.innerHTML='<span>♥</span>VIBE '+likes;dislikeBtn.classList.remove('active')});
+ const dislikeBtn=addAction('♡','NO VIBE',()=>{dislikeBtn.classList.toggle('active');likeBtn.classList.remove('active')});
+ addAction('▢','TALK',()=>comments.classList.toggle('show'));
+ commentInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&commentInput.value.trim()){const line=document.createElement('div');line.className='comment-line';line.textContent=(currentUser.name||'Viewer')+': '+commentInput.value.trim();commentList.append(line);commentInput.value=''}});
+ addAction('↗','SPREAD',async()=>{
+  const shareData={title:item.title,text:'Watch on VIDNEX: '+item.title};
+  if(navigator.share){try{await navigator.share(shareData);return}catch(err){if(err&&err.name==='AbortError')return}}
+  const shareText=shareData.text+(location.href?('\n'+location.href):'');
+  try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(shareText);showToast('VIDNEX share text copied.');}
+   else{const box=document.createElement('textarea');box.value=shareText;box.style.position='fixed';box.style.opacity='0';document.body.append(box);box.select();const copied=document.execCommand('copy');box.remove();showToast(copied?'VIDNEX share text copied.':'Share this video: '+shareText);}}
+  catch(e){showToast('Share this video: '+shareText)}
+ });
+ addAction('⛶','FULL',()=>{
+  if(video.requestFullscreen){video.requestFullscreen().catch(()=>showToast('Use the video player full-screen button on this browser.'))}
+  else if(video.webkitEnterFullscreen){video.webkitEnterFullscreen()}
+  else{showToast('Full screen is not supported by this browser.')}
+ });
+ const followBtn=addAction('＋','JOIN',()=>{const active=followBtn.classList.toggle('active');followBtn.innerHTML='<span>'+(active?'✓':'＋')+'</span>'+(active?'JOINED':'JOIN')});
+ article.append(main,actions);
+ return article;
+}
+window.vidnexMakeVideoPost = makeVideoPost;
+$('#prepareVideo').addEventListener('click',()=>{
+ const file=$('#videoFile').files[0],title=$('#videoTitle').value.trim();
+ if(!file){showUploadNotice('Please select a video first.',false);return}
+ if(!title){showUploadNotice('Please add a video title.',false);return}
+ const item={type:selectedUploadType,title,description:$('#videoDescription').value.trim(),category:$('#videoCategory').value,tags:$('#videoTags').value.trim(),visibility:$('#videoVisibility').value,url:URL.createObjectURL(file),thumbnail:currentThumbUrl||''};
+ if(item.visibility==='public'||item.visibility==='unlisted'){
+  publishedVideos.unshift(item);
+  const feed=item.type==='short'?'#shortsFeed':'#videosFeed';
+  $(feed).prepend(makeVideoPost(item));
+  $('#shortsEmpty').hidden=publishedVideos.some(x=>x.type==='short'&&(x.visibility==='public'||x.visibility==='unlisted'));
+  $('#videosEmpty').hidden=publishedVideos.some(x=>x.type==='long'&&(x.visibility==='public'||x.visibility==='unlisted'));
+  showUploadNotice('Published on this device to VIDNEX '+(item.type==='short'?'SHORTS':'VIDEOS')+'. A connected server is needed for other users to see it.');
+ }else{
+  showUploadNotice('Private video saved only in this current preview. It will not appear in public feeds.');
+ }
+ $('#videoFile').value='';$('#thumbnailFile').value='';$('#videoTitle').value='';$('#videoDescription').value='';$('#videoTags').value='';
+ $('#videoPreview').hidden=true;$('#thumbnailPreview').hidden=true;$('#fileName').textContent='';
+ if(currentVideoUrl){URL.revokeObjectURL(currentVideoUrl);currentVideoUrl=null}
+ if(currentThumbUrl){URL.revokeObjectURL(currentThumbUrl);currentThumbUrl=null}
+});
+$('#startLive').addEventListener('click',async()=>{
+ const box=$('#liveNotice');box.style.display='block';
+ if(!navigator.mediaDevices?.getUserMedia){box.style.background='#fff4e5';box.style.color='#8a5700';box.textContent='Camera preview is not supported in this browser. Try opening VIDNEX in Chrome over HTTPS.';return}
+ try{
+  if(liveStream)liveStream.getTracks().forEach(track=>track.stop());
+  liveStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+  $('#livePreview').srcObject=liveStream;$('#livePreview').hidden=false;
+  box.style.background='#eaf7ef';box.style.color='#247346';
+  box.textContent='Camera and microphone preview is running on this device. You are not broadcasting to viewers yet; public live streaming needs a streaming server.';
+ }catch(err){
+  box.style.background='#fff4e5';box.style.color='#8a5700';
+  box.textContent='Camera/microphone permission was denied or the device is unavailable. Allow camera and microphone access, then try again.';
+ }
+});
+$('#stopLive').addEventListener('click',()=>{
+ if(liveStream){liveStream.getTracks().forEach(track=>track.stop());liveStream=null}
+ $('#livePreview').srcObject=null;$('#livePreview').hidden=true;
+ const box=$('#liveNotice');box.style.display='block';box.style.background='#eaf7ef';box.style.color='#247346';box.textContent='Camera and microphone preview stopped.';
+});
+$('#openLiveStudio').addEventListener('click',()=>showPage('livePage'));
+function updateProfile(){
+ const name=currentUser.name||'VIDNEX Viewer';
+ const handle=(currentUser.handle||'vidnex_viewer').replace(/^@/,'');
+ $('#profileName').textContent=name;$('#profileHandle').textContent='@'+handle;
+ $('#profileInitial').textContent=(name.trim()[0]||'V').toUpperCase();
+ $('#editName').value=name;$('#editHandle').value=handle;$('#editBio').value=currentUser.bio||'';
+}
+$('#saveProfile').addEventListener('click',()=>{
+ const name=$('#editName').value.trim(),handle=$('#editHandle').value.trim().replace(/^@/,'').replace(/\s+/g,'_');
+ const box=$('#profileNotice');box.style.display='block';
+ if(!name||!handle){box.style.background='#fff4e5';box.style.color='#8a5700';box.textContent='Please enter both a display name and username.';return}
+ currentUser={name,handle,bio:$('#editBio').value.trim()};
+ localStorage.setItem('vidnex_profile',JSON.stringify(currentUser));updateProfile();
+ if(currentUser.uid && window.vidnexSaveProfile){ window.vidnexSaveProfile(currentUser).then(()=>{box.textContent='Profile saved to your VIDNEX account.'}).catch(err=>{box.textContent='Saved on this device. Cloud sync failed: '+err.message}); } else { box.textContent='Profile saved on this device.'; }
+});
+$('#signOut').addEventListener('click',()=>{ if(window.vidnexSignOut) window.vidnexSignOut(); else showScreen('welcomeScreen'); });
+
+applyLanguage();
+if(localStorage.getItem('vidnex_language')) {
+ selectedLanguage=localStorage.getItem('vidnex_language');applyLanguage();
+ showScreen('welcomeScreen');
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, addDoc, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDChqHfiI9Qxur6Y2RsTI4TMWUSDZdosts",
+  authDomain: "vidnex-8ce73.firebaseapp.com",
+  projectId: "vidnex-8ce73",
+  storageBucket: "vidnex-8ce73.firebasestorage.app",
+  messagingSenderId: "731300575929",
+  appId: "1:731300575929:web:d529368c582fb5ed873968",
+  measurementId: "G-DCJYNLWXW6"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const toast = message => window.showToast ? window.showToast(message) : alert(message);
+
+async function saveUserProfile(user, extra={}) {
+  await setDoc(doc(db, 'users', user.uid), {
+    uid: user.uid, name: user.name || user.displayName || 'VIDNEX Viewer',
+    email: user.email || '', handle: user.handle || (user.email || 'viewer').split('@')[0],
+    bio: user.bio || '', updatedAt: serverTimestamp(), ...extra
+  }, { merge: true });
+}
+window.vidnexSaveProfile = async user => saveUserProfile(auth.currentUser, user);
+window.vidnexSignOut = async () => { try { await signOut(auth); document.getElementById('welcomeScreen').classList.add('active'); document.getElementById('appScreen').classList.remove('active'); } catch(e) { toast(e.message); } };
+
+
+// VIDNEX cloud video publishing: ImageKit stores media; Firestore stores metadata.
+const uploadButton = document.getElementById('prepareVideo');
+const IMAGEKIT_AUTH_ENDPOINT = 'https://vidnex-imagekit-auth.mahalingappasunkad.workers.dev/auth';
+const IMAGEKIT_UPLOAD_ENDPOINT = 'https://upload.imagekit.io/api/v1/files/upload';
+const uploadNotice = (message, ok=true) => {
+  const box=document.getElementById('sparkNotice'); box.style.display='block';
+  box.style.background=ok?'#eaf7ef':'#fff4e5'; box.style.color=ok?'#247346':'#8a5700'; box.textContent=message;
+};
+const safeFileName = name => name.replace(/[^a-z0-9._-]/gi,'_').slice(-90) || 'media';
+async function getImageKitAuth(){
+  const response=await fetch(IMAGEKIT_AUTH_ENDPOINT,{method:'GET',headers:{'Accept':'application/json'}});
+  if(!response.ok) throw new Error('ImageKit authentication failed ('+response.status+'). Check Cloudflare Worker deployment and secrets.');
+  const data=await response.json();
+  if(!data.token||!data.expire||!data.signature||!data.publicKey) throw new Error('Worker response is missing ImageKit authentication fields.');
+  return data;
+}
+async function uploadToImageKit(file, auth, folder, progressLabel){
+  const form=new FormData();
+  form.append('file',file,file.name);
+  form.append('fileName',Date.now()+'_'+safeFileName(file.name));
+  form.append('folder',folder);
+  form.append('useUniqueFileName','true');
+  form.append('token',auth.token);
+  form.append('expire',String(auth.expire));
+  form.append('signature',auth.signature);
+  form.append('publicKey',auth.publicKey);
+  const response=await fetch(IMAGEKIT_UPLOAD_ENDPOINT,{method:'POST',body:form});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(result.message||result.help||('ImageKit upload failed ('+response.status+').'));
+  if(!result.url) throw new Error('ImageKit did not return a media URL.');
+  return result;
+}
+async function loadPublicVideos(){
+  try {
+    const q=query(collection(db,'videos'),where('visibility','==','public'),limit(100));
+    const snap=await getDocs(q);
+    const docs=[...snap.docs].sort((a,b)=>{
+      const av=a.data().createdAtMs || a.data().createdAt?.toMillis?.() || 0;
+      const bv=b.data().createdAtMs || b.data().createdAt?.toMillis?.() || 0;
+      return bv-av;
+    }).slice(0,30);
+    const shorts=document.getElementById('shortsFeed'), videos=document.getElementById('videosFeed');
+    shorts.innerHTML=''; videos.innerHTML='';
+    let shortCount=0, videoCount=0;
+    for(const d of docs){
+      const data=d.data();
+      if(!data.videoUrl) continue;
+      const item={...data,id:d.id,url:data.videoUrl,ownerName:data.ownerName||'VIDNEX Creator',ownerHandle:data.ownerHandle||'creator'};
+      const card=window.vidnexMakeVideoPost ? window.vidnexMakeVideoPost(item) : null;
+      if(card){ if(item.type==='short'){shorts.append(card);shortCount++;} else {videos.append(card);videoCount++;} }
+    }
+    document.getElementById('shortsEmpty').hidden=shortCount>0;
+    document.getElementById('videosEmpty').hidden=videoCount>0;
+  } catch(error) { console.warn('VIDNEX public feed load failed:',error); }
+}
+window.addEventListener('vidnex-user-ready', loadPublicVideos);
+
+uploadButton.addEventListener('click', async event => {
+  event.preventDefault(); event.stopImmediatePropagation();
+  const user=auth.currentUser;
+  const file=document.getElementById('videoFile').files[0];
+  const title=document.getElementById('videoTitle').value.trim();
+  if(!user){ uploadNotice('Please log in to publish a video.',false); return; }
+  if(!file){ uploadNotice('Please select a video first.',false); return; }
+  if(!title){ uploadNotice('Please add a video title.',false); return; }
+  if(!file.type.startsWith('video/')){ uploadNotice('Please select a valid video file.',false); return; }
+  const maxBytes=100*1024*1024;
+  if(file.size>maxBytes){ uploadNotice('Video is larger than 100 MB. Please choose a smaller file.',false); return; }
+  uploadButton.disabled=true;
+  try {
+    const userProfile=window.vidnexGetUser ? window.vidnexGetUser() : {};
+    uploadNotice('Connecting securely to ImageKit…');
+    const imagekitAuth=await getImageKitAuth();
+    uploadNotice('Uploading video to ImageKit… Please keep VIDNEX open.');
+    const uploaded=await uploadToImageKit(file,imagekitAuth,'/vidnex/videos/'+user.uid,'video');
+    let thumbnailUrl='';
+    const thumb=document.getElementById('thumbnailFile').files[0];
+    if(thumb && thumb.type.startsWith('image/')){
+      uploadNotice('Video uploaded. Uploading thumbnail…');
+      const thumbResult=await uploadToImageKit(thumb,imagekitAuth,'/vidnex/thumbnails/'+user.uid,'thumbnail');
+      thumbnailUrl=thumbResult.url;
+    }
+    const visibility=document.getElementById('videoVisibility').value;
+    const item={
+      ownerId:user.uid, ownerName:userProfile.name||user.displayName||'VIDNEX Creator',
+      ownerHandle:userProfile.handle||(user.email||'creator').split('@')[0],
+      type:document.querySelector('[data-upload-type].selected')?.dataset.uploadType||'short',
+      title, description:document.getElementById('videoDescription').value.trim(),
+      category:document.getElementById('videoCategory').value,
+      tags:document.getElementById('videoTags').value.trim(), visibility,
+      videoUrl:uploaded.url, imagekitFileId:uploaded.fileId||'', thumbnail:thumbnailUrl,
+      createdAt:serverTimestamp(), createdAtMs:Date.now(), views:0
+    };
+    const docRef=await addDoc(collection(db,'videos'),item);
+    if(visibility==='public'){
+      const displayItem={...item,id:docRef.id,url:uploaded.url};
+      const card=window.vidnexMakeVideoPost ? window.vidnexMakeVideoPost(displayItem) : null;
+      if(card){ document.getElementById(item.type==='short'?'shortsFeed':'videosFeed').prepend(card); }
+      document.getElementById(item.type==='short'?'shortsEmpty':'videosEmpty').hidden=true;
+    }
+    uploadNotice(visibility==='public'?'Published! Your video is uploaded to ImageKit and saved for VIDNEX viewers.':'Video uploaded to ImageKit and saved with '+visibility+' visibility.');
+    document.getElementById('videoFile').value=''; document.getElementById('thumbnailFile').value='';
+    document.getElementById('videoTitle').value=''; document.getElementById('videoDescription').value=''; document.getElementById('videoTags').value='';
+    document.getElementById('videoPreview').hidden=true; document.getElementById('thumbnailPreview').hidden=true;
+    document.getElementById('fileName').textContent='';
+  } catch(error) {
+    console.error('VIDNEX ImageKit upload failed:',error);
+    uploadNotice(error.message||'ImageKit upload failed. Please try again.',false);
+  } finally { uploadButton.disabled=false; }
+},true);
+
+const form = document.getElementById('authForm');
+form.addEventListener('submit', async event => {
+  event.preventDefault(); event.stopImmediatePropagation();
+  const button = document.getElementById('authSubmit');
+  button.disabled = true; button.textContent = 'PLEASE WAIT…';
+  try {
+    const email = document.getElementById('authEmail').value.trim();
+    const password = document.getElementById('authPassword').value;
+    const title = document.getElementById('authTitle').textContent.toLowerCase();
+    let credential;
+    if (title.includes('create')) {
+      const name = document.getElementById('authName').value.trim();
+      credential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(credential.user, { displayName: name });
+      const profile = { uid: credential.user.uid, name, email, handle: email.split('@')[0].replace(/[^a-z0-9_]/gi,'_'), bio: '' };
+      await saveUserProfile(profile, { createdAt: serverTimestamp() });
+      window.vidnexSetUser(profile);
+    } else {
+      credential = await signInWithEmailAndPassword(auth, email, password);
+      const snap = await getDoc(doc(db, 'users', credential.user.uid));
+      const saved = snap.exists() ? snap.data() : {};
+      const profile = { uid: credential.user.uid, name: saved.name || credential.user.displayName || 'VIDNEX Viewer', email, handle: saved.handle || email.split('@')[0], bio: saved.bio || '' };
+      window.vidnexSetUser(profile);
+      if (!snap.exists()) await saveUserProfile(profile);
+    }
+  } catch (error) {
+    const messages = { 'auth/email-already-in-use':'This email already has an account. Please log in.', 'auth/invalid-credential':'Incorrect email or password.', 'auth/weak-password':'Password must be at least 6 characters.', 'auth/invalid-email':'Please enter a valid email address.', 'auth/network-request-failed':'Internet connection problem. Please try again.' };
+    toast(messages[error.code] || error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = document.getElementById('authTitle').textContent.toLowerCase().includes('create') ? 'CREATE ACCOUNT' : 'LOGIN';
+  }
+}, true);
+
+onAuthStateChanged(auth, async user => {
+  if (!user) return;
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    const saved = snap.exists() ? snap.data() : {};
+    window.vidnexSetUser({ uid:user.uid, name:saved.name || user.displayName || 'VIDNEX Viewer', email:user.email || '', handle:saved.handle || (user.email || 'viewer').split('@')[0], bio:saved.bio || '' });
+  } catch (error) { console.warn('VIDNEX profile load:', error); }
+});
+</script>
+
+</body>
+</html>
